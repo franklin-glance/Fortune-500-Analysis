@@ -10,7 +10,7 @@ knitr::opts_chunk$set(echo = TRUE)
 # How did the rise in technology usage (social media, internet, etc..) aid or hurt historically successful businesses/industries? 
 
 
-Loading Packages/Some Datasets
+Loading Packages
 ```{r}
 library(tidyverse)
 library(dplyr)
@@ -20,32 +20,82 @@ library(lubridate)
 library(sparklyr)
 library(ggthemes)
 library(gridExtra)
-setwd("~/OneDrive - University of Virginia/UVA/Spring 2022/SYS 2202/rstudio/SYS2202/FinalProject")
-fortune_1000 <- read_csv("data_sources/Fortune_1000.csv") # provides sector info for selection of fortune 500 companies
-fortune1995_2021 <- read_csv("data_sources/fortune500_1955_2021.csv")  # rank + revenue data for fortune 500 companies
-internet_indicators_data <- read_csv("data_sources/data_internet_plus_indicators/56437442-eef4-42c7-ba08-45ad275860fb_data.csv") 
-business_indicators_data <- read_csv("data_sources/data_business_indicators/aee336d2-021b-4021-912c-3de7fd9d2729_data.csv")
+library(readxl)
+library(stringr)
+library(readr)
+setwd("/Users/franklinglance/Library/CloudStorage/OneDrive-UniversityofVirginia/UVA/Spring 2022/SYS 2202/Final Project/Fortune_500_Analysis")
+```
 
-technology_adoption_by_households_in_the_united_states <- read_csv("data_sources/technology-adoption-by-households-in-the-united-states.csv")
+## Importing Data
+```{r}
+# us company data for 2021 Data was collected for the year end February 2021
+fortune_1000 <- read_csv("data/Fortune_1000.csv") # provides sector info for selection of fortune 500 companies
 
-computing_efficiency <- read_csv("data_sources/computing-efficiency.csv")
-price_changes_in_consumer_goods_and_services_in_the_usa_1997_2017 <- read_csv("data_sources/price-changes-in-consumer-goods-and-services-in-the-usa-1997-2017.csv")
+
+fortune1955_2021 <- read_csv("data/fortune500_1955_2021.csv")  # rank + revenue data for fortune 500 companies
+
+
+internet_indicators_data <- read_csv("data/data_internet_plus_indicators/56437442-eef4-42c7-ba08-45ad275860fb_data.csv") 
+
+technology_adoption_by_households_in_the_united_states <- read_csv("data/technology-adoption-by-households-in-the-united-states.csv")
+
+computing_efficiency <- read_csv("data/computing-efficiency.csv")
+
+price_changes_in_consumer_goods_and_services_in_the_usa_1997_2017 <- read_csv("data/price-changes-in-consumer-goods-and-services-in-the-usa-1997-2017.csv")
+
+X2021_Edition_CNTSDATA <- read_excel("data/2021 Edition CNTSDATA files with LINKS/2021 Edition CNTSDATA.xlsx")
+
+# data on various business indicators (see metadata)
+data_bisiness_indicators <- read_csv("data/data_business_indicators/aee336d2-021b-4021-912c-3de7fd9d2729_Data.csv")
+```
+
+```{r}
+
+
+api.token <- "6255808d7af5d5.00153110"
+symbol <- "TSLA.US"
+ticker.link <- paste("http://nonsecure.eodhistoricaldata.com/api/eod/", symbol, "?api_token=", api.token, "&period=m&order=d", sep="")
+data <- read.csv(url(ticker.link))
+head(data)
 
 ```
+
+
+## Tidying Data
+
 Prepare Fortune 1000 and Fortune1995_2021 for joining + join by company
 ```{r}
-fortune_facts <- fortune_1000 %>%
+fortune_1000 <- fortune_1000 %>%
   mutate(Company = company)
-fortune_all <- fortune1995_2021 %>%
+fortune1955_2021 <- fortune1955_2021 %>%
   mutate(Company = Name)
+```
 
-fortune_joined <- fortune_all %>%
-  left_join(fortune_facts, by = "Company") %>%
+
+```{r}
+fortune_joined <- fortune_1000 %>%
+  left_join(fortune1955_2021, by = "Company") %>%
   drop_na(sector)
 # drop irrelavent columns
 fortune_joined <- fortune_joined %>% 
   select(-c(rank, rank_change, revenue, profit, `num. of employees`, profitable, prev_rank, `Market Cap`))
 ```
+
+
+
+
+Preparing data from data_business_indicators
+```{r}
+
+```
+
+
+Preparing data on USA from CNTSDATA
+```{r}
+USA_CNTSDATA <- X2021_Edition_CNTSDATA %>%
+  filter(`Country Code` == 1220)
+```
+
 
 Display rough distribution of sectors over the years
 ```{r}

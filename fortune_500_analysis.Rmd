@@ -372,15 +372,76 @@ All sectors
 ```{r}
 top_100_joined %>%
   ggplot(aes(`Individuals using the Internet (% of population)`, Revenue)) + 
-  geom_smooth()
+  geom_smooth() + 
+  labs(title = "Relationship between % of US pop. using the Internet and Fortune 500 Revenue", 
+       subtitle ="(top 100 selection of fortune 500)")
 ```
 Tech sectors
 ```{r}
 top_100_joined %>%
   filter(sector == "Technology") %>%
   ggplot(aes(`Individuals using the Internet (% of population)`, Revenue)) + 
-  geom_smooth()
+  geom_smooth() +
+    labs(title = "Relationship between % of US pop. using the Internet and Fortune 500 Revenue", 
+       subtitle ="(top 100 selection of fortune 500, technology sector only)")
 ```
+
+```{r}
+top_100_joined %>%
+  ggplot(aes(`Technology Diffusion (Comin and Hobijn (2004) and others)`, Revenue)) + 
+  geom_smooth() +
+    labs(title = "Relationship between technology diffusion and Fortune 500 Revenue", 
+       subtitle ="(top 100 selection of fortune 500)")
+```
+
+```{r}
+top_100_joined %>%
+  ggplot(aes(`Computing efficiency`, Revenue)) + 
+  geom_smooth() +
+    labs(title = "Relationship between Computing Efficiency and Fortune 500 Revenue", 
+       subtitle ="(top 100 selection of fortune 500)") +
+    scale_x_continuous(trans = "reverse")
+```
+```{r}
+top_100_joined %>%
+  filter(sector == "Technology") %>%
+  ggplot(aes(`Computing efficiency`, Revenue)) + 
+  geom_smooth() +
+    labs(title = "Relationship betwen Computing Efficiency and Revenue -> Technology Sector", 
+       subtitle ="(top 100 selection of fortune 500, technology sector)")  +
+    scale_x_continuous(trans = "reverse")
+```
+
+
+Technology as a sector experienced significantly faster growth after the US population surpassed 50% internet usage by capita. 
+
+
+
+```{r}
+top_100_joined %>%
+  filter(sector == "Technology") %>%
+  ggplot(aes(`Cellular Subscriptions`, Revenue)) + 
+  geom_smooth() +
+    labs(title = "Relationship betwen Cellular Subscriptions and Revenue -> Technology Sector", 
+       subtitle ="(top 100 selection of fortune 500, technology sector)")  
+```
+```{r}
+top_100_joined %>%
+  ggplot(aes(`Cellular Subscriptions`, Revenue)) + 
+  geom_smooth() +
+    labs(title = "Relationship betwen Cellular Subscriptions and Revenue -> Top 100", 
+       subtitle ="(top 100 selection of fortune 500, technology sector)")  
+```
+
+
+
+
+
+
+
+
+
+
 Correlation coefficients
 ```{r}
 cor(top_100_joined$Revenue, top_100_joined$Rank, use = "complete.obs")

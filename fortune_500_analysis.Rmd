@@ -37,6 +37,8 @@ fortune1955_2021 <- read_csv("data/fortune500_1955_2021.csv")  # rank + revenue 
 
 internet_indicators_data <- read_csv("data/data_internet_plus_indicators/56437442-eef4-42c7-ba08-45ad275860fb_data.csv") 
 
+percent_using_internet <- read_excel("data/percent_of_population_using_internet.xlsx")
+
 technology_adoption_by_households_in_the_united_states <- read_csv("data/technology-adoption-by-households-in-the-united-states.csv")
 
 computing_efficiency <- read_csv("data/computing-efficiency.csv")
@@ -264,7 +266,7 @@ technology_adoption_by_households_in_the_united_states %>%
   arrange(desc(mean_diffusion_by_entity))
 ```
 
-graphing just those
+Graphing just the top entities
 ```{r}
 technology_adoption_by_households_in_the_united_states %>% 
   group_by(`Entity`) %>% 
@@ -279,9 +281,29 @@ technology_adoption_by_households_in_the_united_states %>%
 
 
 
-#### Visualizing computing efficiency, 1985 to 2015:
+
+#### Supercomputer power, 1993 to 2021:
+In itself, the doubling of transistors every two years does not directly matter as much as how those changes apply to computing power. 
+
 Insights:
-  - the period of most rapid change in computing efficiency was during the timeframe of 1990 to 2000. This could be a good time frame to analyze the growth of tech succsessful businesses vs other successful businesses. 
+  - the period of most rapid change in supercomputer power occurred from 2012 to 2021. This could be a good time frame to analyze the growth of tech succsessful businesses vs other successful businesses. 
+```{r}
+supercomputer_power_flops %>%
+  group_by(Year) %>%
+  ggplot(aes(Year, `Floating-Point Operations per Second`)) +
+  geom_smooth() +
+  labs(title = "Supercomputer Power, 1993 to 2021", 
+       subtitle = "Floating-Point Operations per Second") + 
+  ylab("Supercomputer Power (FLOPS)")
+```
+
+#### Computing efficiency, 1985 to 2015:
+
+The cost to keep the machine running also matters. Computing efficiency measures the computational capacity per unit of energy. 
+In this chart we see the computing efficiency of various processors over time. Here, computing efficiency is measured as the number of watts (a measure of electrical power) needed to carry out a million instructions per second (Watts per MIPS).
+
+Insights:
+  - the period of most rapid change in computing efficiency was during the time frame of 1990 to 2000. This could be a good time frame to analyze the growth of tech succsessful businesses vs other successful businesses. 
 ```{r}
 computing_efficiency %>%
   group_by(Year) %>%
@@ -293,8 +315,18 @@ computing_efficiency %>%
   ylab("Computing Efficiency")
 ```
 
+### Internet Usage, 
+While computing efficiency and supercomputer power directly relate to the power of tech, the adoption of tech is also very important. To understand this, we will look at data regarding the percentage of people in the US using the internet
 
-
+Insights:
+  - 
+  
+```{r}
+percent_using_internet %>%
+  ggplot(aes(Year, `Individuals using the Internet (% of population)`)) +
+  geom_smooth() + 
+  labs(title ="Percent of US population using the Internet, 1990 - 2019") + ylab("% of Population")
+```
 
 
 
@@ -308,7 +340,8 @@ Independent Variables:
 - Sector (selecting by sector)
 
 Dependent Variables:
-- Sector, Revenue, Rank, -> used to indicate relative "success" of a company over the years
+- Sector, Revenue, Rank, of successful businesses. 
+-> used to indicate relative "success" of a company over the years
 
 
 

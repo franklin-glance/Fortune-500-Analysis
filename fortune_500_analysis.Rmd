@@ -47,19 +47,14 @@ X2021_Edition_CNTSDATA <- read_excel("data/2021 Edition CNTSDATA files with LINK
 
 # data on various business indicators (see metadata)
 data_bisiness_indicators <- read_csv("data/data_business_indicators/aee336d2-021b-4021-912c-3de7fd9d2729_Data.csv")
+
+# data on supercomputer power
+supercomputer_power_flops <- read_csv("data/supercomputer-power-flops.csv")
+
+
+# ai computation arrivals
+ai_training_computation <- read_csv("data/ai-training-computation.csv")
 ```
-
-```{r}
-
-
-api.token <- "6255808d7af5d5.00153110"
-symbol <- "TSLA.US"
-ticker.link <- paste("http://nonsecure.eodhistoricaldata.com/api/eod/", symbol, "?api_token=", api.token, "&period=m&order=d", sep="")
-data <- read.csv(url(ticker.link))
-head(data)
-
-```
-
 
 ## Tidying Data
 
@@ -81,7 +76,106 @@ fortune_joined <- fortune_joined %>%
   select(-c(rank, rank_change, revenue, profit, `num. of employees`, profitable, prev_rank, `Market Cap`))
 ```
 
+Tidying Fortune Joined Dataset
 
+- Revenue is now in billions of dollars
+```{r}
+# changing revenue to numeric type, now in billions of dollars
+fortune_joined <- fortune_joined %>%
+  transform(Revenue = as.integer(Revenue)) %>%
+  mutate(Revenue = Revenue/1000) %>%
+  transform(Revenue = as.integer(Revenue))
+fortune_joined
+```
+
+
+## Determining which companies are "successful" vs. "unsuccessful
+
+### Can rank and Revenue be used synonomously when talking about success?
+
+It appears that there is absolutely a correlation between rank and revenue, especially when looking at companies ranked in the top 200. Therefore, we will choose to focus on top 200 ranked companies, since lower ranking companies do not appear to differ significantly in revenue. 
+```{r}
+fortune_joined %>%
+  filter(Year > 1985) %>%
+  group_by(Rank) %>%
+  summarise(mean_revenue_by_rank = mean(Revenue, na.rm = TRUE)) %>%
+  ggplot(aes(Rank, mean_revenue_by_rank)) +
+  geom_smooth() + 
+  labs(title = "Mean Revenue by Rank, Fortune 500 from 1985 to 2021", 
+       subtitle = "Displays correlation between rank and revenue") +
+  ylab("Mean Revenue (in billions)") + 
+  scale_x_continuous(trans = "reverse")
+```
+
+Viewing top 20 companes that have been on this list the longest.
+```{r}
+head(fortune_joined %>% count(Company, sort=TRUE), n=20)
+```
+Listing companies which have been on the fortune 500 for more than 20 years, after 1985.
+```{r}
+
+head(fortune_joined %>% count(Company, sort=TRUE), n=20)
+
+# filtering by companies on the list for 20 years, since 1985
+fortune_joined %>% 
+  group_by(Company) %>%
+  filter(Year > 1985) %>%
+  filter(n() > 20) %>%
+  summarise(unique(Company), n()) %>%
+  arrange(desc(n()))
+```
+
+
+Now we will filter for companies who have been on the fortune 500 the entire time
+```{r}
+fortune_joined %>% 
+  group_by(Company) %>%
+  filter(Year > 1985) %>%
+  filter(n() > 35) 
+```
+
+
+We know that the top 100 companes typically show the greatest correlation between rank and revenue, so we will filter for companes which were in the top 100 in 2021, and have been on the list since 1985. They are the following:
+```{r}
+top_100 <- fortune_joined %>% 
+  group_by(Company) %>%
+  filter(Year > 1985) %>%
+  filter(n() > 35) %>%
+  group_by(Company) %>%
+  filter(Year == 2021) %>%
+  filter(Rank < 100) %>%
+  summarise(Company)
+```
+
+Choosing a distinct set of several "successful" businesses will allow a more in depth analysis when analyzing correlation with technological advancements. 
+```{r}
+as.vector(top_100)
+
+
+fortune_joined %>% 
+  group_by(Company) %>%
+  filter(Year > 1985) %>%
+  filter(n() > 35) %>%
+  filter(Company %in% as.vector(top_100))
+
+
+
+  ggplot(mapping = aes(Year, Rank, color=Company)) +
+  geom_line(aes(linetype=Company), size=1) +
+  labs(title='Fortune 500 Rank - Apple, Exxon Mobil, Ford, General Motors, from 1985-2021') +
+  scale_y_continuous(breaks = seq(0, 300, by=30), limits=c(300,1), trans = 'reverse') 
+```
+
+It appears that 1994 and 2000 are significant years for Apple. Let us see if there is any similar trend for other companies during those time-frames. 
+
+
+
+
+
+The previous analysis has aided in determining the following insights about fortune 500 companies. 
+- There is a correlation between rank and revenue
+- Good subset of Companies to analyze are:
+  - 
 
 
 Preparing data from data_business_indicators

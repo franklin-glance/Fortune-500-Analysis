@@ -145,38 +145,86 @@ top_100 <- fortune_joined %>%
   filter(Year == 2021) %>%
   filter(Rank < 100) %>%
   summarise(Company)
+
 ```
 
 Choosing a distinct set of several "successful" businesses will allow a more in depth analysis when analyzing correlation with technological advancements. 
 ```{r}
 as.vector(top_100)
 
+# creating vector of companies who have been in the top 100 the whole time
+top_100_vector = c(t(top_100))
+```
 
+
+
+Creating data frame with top companies from 2021 over the entire timeframe. Good subset of "successful" businesses. 
+```{r}
+top_100_companies_long_term <- fortune_joined %>% 
+  group_by(Company) %>%
+  filter(Year > 1985) %>%
+  filter(n() > 35) %>%
+  filter(Company %in% top_100_vector)
+```
+
+
+This isn't a great visualization, however it does show that these companies as a whole experienced growth over the years. 
+```{r}
+top_100_companies_long_term %>%
+  group_by(Company) %>%
+  ggplot(aes(Year, Revenue)) +
+  geom_col(aes(fill = Company)) +
+  labs(title = "Total Revenue of top 100 Companies from 1985 to 2021", 
+       subtitle = "Displays distribution of Revenue by company") +
+  ylab("Revenue (in billions)")
+```
+Top 100 revenue by sector. This is a very useful visualization, as it shows how some sectors have grown (technology, aerospace and defense), and others have diminished (motor vehicles and parts)
+```{r}
+top_100_companies_long_term %>%
+  group_by(Company) %>%
+  ggplot(aes(Year, Revenue)) +
+  geom_col(aes(fill = sector)) +
+  labs(title = "Total Revenue of top 100 Companies from 1985 to 2021, by Sector", 
+       subtitle = "Displays distribution of Revenue by sector") +
+  ylab("Revenue (in billions)")
+```
+Let us visualize the same thing, but for all companies on the fortune 500 since 1985. 
+```{r}
 fortune_joined %>% 
   group_by(Company) %>%
   filter(Year > 1985) %>%
   filter(n() > 35) %>%
-  filter(Company %in% as.vector(top_100))
-
-
-
-  ggplot(mapping = aes(Year, Rank, color=Company)) +
-  geom_line(aes(linetype=Company), size=1) +
-  labs(title='Fortune 500 Rank - Apple, Exxon Mobil, Ford, General Motors, from 1985-2021') +
-  scale_y_continuous(breaks = seq(0, 300, by=30), limits=c(300,1), trans = 'reverse') 
+  ggplot(aes(Year, Revenue)) +
+  geom_col(aes(fill = sector)) +
+  labs(title = "Total Revenue of fortune 500 Companies from 1985 to 2021, by Sector", 
+       subtitle = "Revenue by sector for companes that were on the Fortune 500 since 1985") +
+  ylab("Revenue (in billions)")
 ```
-
-It appears that 1994 and 2000 are significant years for Apple. Let us see if there is any similar trend for other companies during those time-frames. 
-
-
-
-
+These graphs are helpful, however i think one focusing on the sectors could provide more useful insights. 
+```{r}
+fortune_joined %>% 
+  group_by(Company) %>%
+  filter(Year > 1985) %>%
+  filter(n() > 35) %>%
+  group_by(Year, sector) %>%
+  summarise(revenue_per_year = sum(Revenue)) %>%
+  ggplot(aes(Year, revenue_per_year)) +
+  geom_col() +
+  facet_wrap(~ sector) +
+  labs(title = "Total Revenue of top 100 Companies from 1985 to 2021, by Sector", 
+       subtitle = "Displays distribution of Revenue by sector") +
+  ylab("Revenue (in billions)")
+```
 
 The previous analysis has aided in determining the following insights about fortune 500 companies. 
 - There is a correlation between rank and revenue
-- Good subset of Companies to analyze are:
-  - 
+- Good subset of Companies to analyze are the top 100 companies from 2021, those of which have been on the fortune 500 since 1985. These can be our subset of "successful businesses"
+- We can visualize the breakdown of successful businesses by sector, which provides a good look into which sectors have grown/shrunk since 1985. 
 
+
+## Effects of Technology on Successful Businesses
+
+Now we will explore potential relationships between emerging technologies and historically successful businesses. 
 
 Preparing data from data_business_indicators
 ```{r}
@@ -191,38 +239,64 @@ USA_CNTSDATA <- X2021_Edition_CNTSDATA %>%
 ```
 
 
-Display rough distribution of sectors over the years
+
 ```{r}
-
-fortune_joined %>%
-  group_by(Year, sector) %>%
-  filter(Rank < 20) %>%
-  filter(Year > 1990) %>%
-  ggplot(aes(Year)) +
-  geom_bar(aes(fill = sector)) + 
-  labs(title = "Sectors of Top companies on Fortune 500 since 1990")
-           
-
 fortune_joined %>%
   group_by(Year, sector) %>%
   ggplot(aes(Year)) +
   geom_bar(aes(fill = sector)) +
   labs(title = "Successful Businesses Sector Distribution Over the Years")
+```
 
+
+
+
+#### Visualizing Technology Adoption by Househods in the US. 
+Insights:
+  - 
+  
+Determinign which are the top entities
+```{r}
 technology_adoption_by_households_in_the_united_states %>% 
-  group_by(Year) %>% 
+  group_by(`Entity`) %>% 
+  filter(Year > 1985) %>%
+  summarise(mean_diffusion_by_entity = mean(`Technology Diffusion (Comin and Hobijn (2004) and others)` )) %>%
+  arrange(desc(mean_diffusion_by_entity))
+```
+
+graphing just those
+```{r}
+technology_adoption_by_households_in_the_united_states %>% 
+  group_by(`Entity`) %>% 
+  filter(Year > 1985) %>%
+  mutate(mean_diffusion_by_entity = mean(`Technology Diffusion (Comin and Hobijn (2004) and others)` )) %>%
+  filter(mean_diffusion_by_entity > 92) %>%
   ggplot(aes(Year, `Technology Diffusion (Comin and Hobijn (2004) and others)`)) +
-  geom_col()
+  geom_smooth(aes(linetype = `Entity`, color = )) +
+  ylab("Technology Adoption, in millions")
+```
 
 
+
+
+#### Visualizing computing efficiency, 1985 to 2015:
+Insights:
+  - the period of most rapid change in computing efficiency was during the timeframe of 1990 to 2000. This could be a good time frame to analyze the growth of tech succsessful businesses vs other successful businesses. 
+```{r}
 computing_efficiency %>%
   group_by(Year) %>%
+  filter(Year > 1985) %>%
   ggplot(aes(Year, log10(`Computing efficiency`))) +
-  geom_line() +
-  labs(title = "Computing efficiency, 1971 to 2015", 
-       subtitle = "Computer processing efficiency, measured as the number of watts needed per million instructions per second - Watts per MIPS.") + 
+  geom_smooth() +
+  labs(title = "Computing efficiency, 1985 to 2015", 
+       subtitle = "Computer processing efficiency, Watts per MIPS.") + 
   ylab("Computing Efficiency")
 ```
+
+
+
+
+
 
 ## Variable Breakdown (tentative)
 

@@ -1,5 +1,5 @@
 ---
-title: "final_planning"
+title: "Analysis - Franklin Glance"
 output: html_document
 ---
 
@@ -8,7 +8,6 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 # How did the rise in technology usage (social media, internet, etc..) aid or hurt historically successful businesses/industries? 
-
 
 Loading Packages
 ```{r}
@@ -22,6 +21,9 @@ library(ggthemes)
 library(gridExtra)
 library(readxl)
 library(stringr)
+library(corrr)
+library(here)
+library(corrgram)
 library(readr)
 setwd("/Users/franklinglance/Library/CloudStorage/OneDrive-UniversityofVirginia/UVA/Spring 2022/SYS 2202/Final Project/Fortune_500_Analysis")
 ```
@@ -30,32 +32,17 @@ setwd("/Users/franklinglance/Library/CloudStorage/OneDrive-UniversityofVirginia/
 ```{r}
 # us company data for 2021 Data was collected for the year end February 2021
 fortune_1000 <- read_csv("data/Fortune_1000.csv") # provides sector info for selection of fortune 500 companies
-
-
 fortune1955_2021 <- read_csv("data/fortune500_1955_2021.csv")  # rank + revenue data for fortune 500 companies
-
-
-internet_indicators_data <- read_csv("data/data_internet_plus_indicators/56437442-eef4-42c7-ba08-45ad275860fb_data.csv") 
-
 percent_using_internet <- read_excel("data/percent_of_population_using_internet.xlsx")
-
 technology_adoption_by_households_in_the_united_states <- read_csv("data/technology-adoption-by-households-in-the-united-states.csv")
-
 computing_efficiency <- read_csv("data/computing-efficiency.csv")
-
-price_changes_in_consumer_goods_and_services_in_the_usa_1997_2017 <- read_csv("data/price-changes-in-consumer-goods-and-services-in-the-usa-1997-2017.csv")
-
-X2021_Edition_CNTSDATA <- read_excel("data/2021 Edition CNTSDATA files with LINKS/2021 Edition CNTSDATA.xlsx")
-
 # data on various business indicators (see metadata)
 data_bisiness_indicators <- read_csv("data/data_business_indicators/aee336d2-021b-4021-912c-3de7fd9d2729_Data.csv")
-
 # data on supercomputer power
 supercomputer_power_flops <- read_csv("data/supercomputer-power-flops.csv")
 
-
-# ai computation arrivals
-ai_training_computation <- read_csv("data/ai-training-computation.csv")
+# data on phone subscriptions
+landline_cellular_data <- read_excel("data/landline_cellular_data.xlsx")
 ```
 
 ## Tidying Data
@@ -87,7 +74,6 @@ fortune_joined <- fortune_joined %>%
   transform(Revenue = as.integer(Revenue)) %>%
   mutate(Revenue = Revenue/1000) %>%
   transform(Revenue = as.integer(Revenue))
-fortune_joined
 ```
 
 
@@ -204,7 +190,7 @@ fortune_joined %>%
 ```
 These graphs are helpful, however i think one focusing on the sectors could provide more useful insights. 
 ```{r}
-fortune_joined %>% 
+top_100_companies_long_term %>% 
   group_by(Company) %>%
   filter(Year > 1985) %>%
   filter(n() > 35) %>%
@@ -217,30 +203,20 @@ fortune_joined %>%
        subtitle = "Displays distribution of Revenue by sector") +
   ylab("Revenue (in billions)")
 ```
-
-The previous analysis has aided in determining the following insights about fortune 500 companies. 
-- There is a correlation between rank and revenue
-- Good subset of Companies to analyze are the top 100 companies from 2021, those of which have been on the fortune 500 since 1985. These can be our subset of "successful businesses"
-- We can visualize the breakdown of successful businesses by sector, which provides a good look into which sectors have grown/shrunk since 1985. 
-
-
-## Effects of Technology on Successful Businesses
-
-Now we will explore potential relationships between emerging technologies and historically successful businesses. 
-
-Preparing data from data_business_indicators
 ```{r}
-
+fortune_joined %>% 
+  group_by(Company) %>%
+  filter(Year > 1985) %>%
+  filter(n() > 35) %>%
+  group_by(Year, sector) %>%
+  summarise(revenue_per_year = sum(Revenue)) %>%
+  ggplot(aes(Year, revenue_per_year)) +
+  geom_col() +
+  facet_wrap(~ sector) +
+  labs(title = "Total Revenue of fortune 500 companies from 1985 to 2021, by Sector", 
+       subtitle = "Displays distribution of Revenue by sector") +
+  ylab("Revenue (in billions)")
 ```
-
-
-Preparing data on USA from CNTSDATA
-```{r}
-USA_CNTSDATA <- X2021_Edition_CNTSDATA %>%
-  filter(`Country Code` == 1220)
-```
-
-
 
 ```{r}
 fortune_joined %>%
@@ -250,14 +226,40 @@ fortune_joined %>%
   labs(title = "Successful Businesses Sector Distribution Over the Years")
 ```
 
+The previous analysis has aided in determining the following insights about fortune 500 companies. 
+- There is a correlation between rank and revenue
+- Good subset of Companies to analyze are the top 100 companies from 2021, those of which have been on the fortune 500 since 1985. These can be our subset of "successful businesses"
+- We can visualize the breakdown of successful businesses by sector, which provides a good look into which sectors have grown/shrunk since 1985. 
+
+
+### Alternate subset of successful businesses (new additions to fortune 500 since 2000). 
+
+```{r}
+new_additions <- fortune_joined %>% 
+  group_by(Company) %>%
+  filter(Year > 2000) %>%
+  filter(n() > 20) %>%
+  group_by(Company) %>%
+  filter(Year == 2021) %>%
+  summarise(Company)
+
+```
 
 
 
-#### Visualizing Technology Adoption by Househods in the US. 
+## Effects of Technology on Successful Businesses
+
+Now we will explore potential relationships between emerging technologies and successful businesses. 
+
+
+
+
+
+
+#### Technology Adoption by Househods in the US. 
 Insights:
   - 
-  
-Determinign which are the top entities
+Determining which are the top entities
 ```{r}
 technology_adoption_by_households_in_the_united_states %>% 
   group_by(`Entity`) %>% 
@@ -274,12 +276,9 @@ technology_adoption_by_households_in_the_united_states %>%
   mutate(mean_diffusion_by_entity = mean(`Technology Diffusion (Comin and Hobijn (2004) and others)` )) %>%
   filter(mean_diffusion_by_entity > 92) %>%
   ggplot(aes(Year, `Technology Diffusion (Comin and Hobijn (2004) and others)`)) +
-  geom_smooth(aes(linetype = `Entity`, color = )) +
+  geom_smooth(aes(linetype = `Entity`)) +
   ylab("Technology Adoption, in millions")
 ```
-
-
-
 
 
 #### Supercomputer power, 1993 to 2021:
@@ -315,12 +314,11 @@ computing_efficiency %>%
   ylab("Computing Efficiency")
 ```
 
-### Internet Usage, 
+### Internet Usage, 1990 - 2019
 While computing efficiency and supercomputer power directly relate to the power of tech, the adoption of tech is also very important. To understand this, we will look at data regarding the percentage of people in the US using the internet
 
 Insights:
   - 
-  
 ```{r}
 percent_using_internet %>%
   ggplot(aes(Year, `Individuals using the Internet (% of population)`)) +
@@ -328,9 +326,77 @@ percent_using_internet %>%
   labs(title ="Percent of US population using the Internet, 1990 - 2019") + ylab("% of Population")
 ```
 
+### Phone Usage, 1985 - 2019
+```{r}
+landline_cellular_data %>%
+  ggplot(aes(Year, `Landline Subscriptions (per 100 people)`)) +
+  geom_smooth() + 
+  labs(title = "Landline Subscriptions,1985-2019") + 
+  ylab("Subscriptions per 100 people")
+```
+```{r}
+landline_cellular_data %>%
+  ggplot(aes(Year, `Cellular Subscriptions (per 100 people)`)) +
+  geom_smooth() + 
+  labs(title = "Cellular Subscriptions per 100 people,1985-2019") + 
+  ylab("Subscriptions per 100 people")
+```
+```{r}
+landline_cellular_data %>%
+  ggplot(aes(Year, `Cellular Subscriptions`/1000000)) +
+  geom_smooth() + 
+  labs(title = "Total Cellular Subscriptions, 1985-2019") + 
+  ylab("Subscriptions (in millions)")
+```
+
+## Analysis of Relationship between Business Success and Technological Advancements/Adoption
+
+We have seen above how various technologies have grown and been adopted since 1985. We will now analyze the relationship betweent he growth of these technologies and the success rates of historically successful businesses. Additionally, we will analyze a subset of successful businesses, those of which that have joined the fortune 500 since 2000. 
 
 
-## Variable Breakdown (tentative)
+
+### Relationship betweeen top 100 companies and tech advancements
+
+joining datasets by year
+```{r}
+top_100_joined <- top_100_companies_long_term %>%
+  left_join(landline_cellular_data, by = "Year") %>%
+  left_join(percent_using_internet, by = "Year") %>%
+  left_join(technology_adoption_by_households_in_the_united_states, by = "Year") %>%
+  left_join(computing_efficiency, by = "Year") %>%
+  left_join(supercomputer_power_flops, by = "Year")
+```
+
+
+All sectors
+```{r}
+top_100_joined %>%
+  ggplot(aes(`Individuals using the Internet (% of population)`, Revenue)) + 
+  geom_smooth()
+```
+Tech sectors
+```{r}
+top_100_joined %>%
+  filter(sector == "Technology") %>%
+  ggplot(aes(`Individuals using the Internet (% of population)`, Revenue)) + 
+  geom_smooth()
+```
+Correlation coefficients
+```{r}
+cor(top_100_joined$Revenue, top_100_joined$Rank, use = "complete.obs")
+
+
+cor(top_100_joined$Revenue, top_100_joined$`Computing efficiency`, use = "complete.obs")
+```
+
+```{r}
+corrgram(top_100_joined)
+```
+
+
+
+
+### Variable Breakdown (tentative)
 
 Independent Variables:
 - Internet Usage from 1990-2019

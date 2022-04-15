@@ -454,9 +454,6 @@ cor(top_100_joined$Revenue, top_100_joined$`Computing efficiency`, use = "comple
 corrgram(top_100_joined)
 ```
 
-
-
-
 ### Variable Breakdown (tentative)
 
 Independent Variables:

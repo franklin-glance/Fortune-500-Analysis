@@ -37,7 +37,6 @@ setwd("/Users/franklinglance/Library/CloudStorage/OneDrive-UniversityofVirginia/
 ```{r}
 fortune1955_2021 <- read_csv("data/fortune500_1955_2021.csv")  # rank + revenue data for fortune 500 companies
 percent_using_internet <- read_excel("data/percent_of_population_using_internet.xlsx")
-technology_adoption_by_households_in_the_united_states <- read_csv("data/technology-adoption-by-households-in-the-united-states.csv")
 
 computing_efficiency <- read_csv("data/computing-efficiency.csv")
 # data on various business indicators (see metadata)
@@ -66,21 +65,20 @@ computer_storage_cost <- read_csv("data/historical-cost-of-computer-memory-and-s
 
 ```
 
-| Dataset           | Source | Description | Usage |
-|-------------------|--------|-------------|-------|
-| fortune_1955_2021 |        |             |       |
-|                   |        |             |       |
-|                   |        |             |       |
-|                   |        |             |       |
-|                   |        |             |       |
-|                   |        |             |       |
-|                   |        |             |       |
-|                   |        |             |       |
-|                   |        |             |       |
-|                   |        |             |       |
-|                   |        |             |       |
-|                   |        |             |       |
-|                   |        |             |       |
+| Dataset              | Source                                                                                      | Description                                                                                                                                                                              | Usage                                                                                                                                |
+|----------------------|---------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------|
+| fortune_1955_2021    | <https://www.kaggle.com/datasets/darinhawley/fortune-500-companies-19552021>                | Since 1955, Fortune magazine has published the top 500 companies in the                                                                                                                  
+                                                                                                                      US based on annual revenue. This list shows all 500 for each year. Variables: Year, Company Name, Revenue, Rank                                                                           | Primary dataset, used for time series information on Fortune 500 rank + revenue.                                                     |
+| company_infov2       | <https://www.kaggle.com/datasets/peopledatalabssf/free-7-million-company-dataset>           | Dataset of 7+ Million Companies                                                                                                                                                          | Used to provide detailed information on every company in fortune_1955_2021                                                           |
+| industries_to_sector | Self Created                                                                                | Conversion Table                                                                                                                                                                         | Used to recode industry column into stock market Sectors                                                                             |
+| Technology Adoption  | <https://ourworldindata.org/grapher/technology-adoption-by-households-in-the-united-states> | This dataset details the rates of diffusion and adoption of a range of technologies in the United States, measured as the percentage of US households with access or adoption over time. | Evaluating effect of technology adoption on businesses                                                                               |
+| Supercomputer Power  | <https://ourworldindata.org/grapher/supercomputer-power-flops>                              | Number of floating-point operations carried out per second by the largest supercomputer in any given year.                                                                               | Evaluating effects of computational power on businesses                                                                              |
+| Computing Efficiency | <https://ourworldindata.org/grapher/computing-efficiency>                                   | Computer processing efficiency, measured as the number of watts needed per million instructions per second (Watts                                                                        | Evaluating effects of computational efficiency on businesses                                                                         |
+| Internet Usage       | <https://data.worldbank.org/indicator/IT.NET.USER.ZS>                                       | Percent of US population using the internet by year                                                                                                                                      | Evaluating effects of increasing internet usage on businesses                                                                        |
+| Phone Usage          | <https://data.worldbank.org/indicator/IT.CEL.SETS>                                          | Data on Cellular and Land line subscriptions in the US                                                                                                                                   | Evaluating effects of changing phone usage on businesses                                                                             |
+| Moore's Law          | <https://ourworldindata.org/technological-change>                                           | Real world data on Moore's law, which states the number of transistors on a microchip doubles about every two years, though the cost of computers is halved.                             | Evaluating effects of transistor size (indicator of technological progress) on businesses                                            |
+| Computing Cost       | <https://ourworldindata.org/technological-change>                                           | Historical cost of computer memory and storage, measured in US dollars per megabyte.                                                                                                     | Evaluating effects of computational cost on businesses                                                                               |
+| **fortune_joined**   | Self Created                                                                                | N/A                                                                                                                                                                                      | Primary Dataset for the analysis. Contains all info on Fortune 500 Rank, Revenue, etc... Combination of every dataset in this table. |
 
 : Dataset Information
 
@@ -517,6 +515,20 @@ The goal of this analysis is to determine the impact of technological advancemen
 
 #### Filtering for Success
 
++-----------------------+-----------------------------------------------------------------------+
+| Category              | Qualifications                                                        |
++=======================+=======================================================================+
+| Hyper-Successful      | \>5 billion/year avg. revenue growth + in Fortune 500 in 2021         |
++-----------------------+-----------------------------------------------------------------------+
+| Moderately-Successful | \>1 && \<5 billion/year avg. revenue growth + in Fortune 500 in 2021  |
++-----------------------+-----------------------------------------------------------------------+
+| Low-Success           | \<1 billion/year avg. revenue growth + in Fortune 500 in 2021         |
++-----------------------+-----------------------------------------------------------------------+
+| Unsuccessful\*        | \<.5 billion/year avg.revenue growth + **not** in Fortune 500 in 2021 |
++-----------------------+-----------------------------------------------------------------------+
+
+: Quantifying Success
+
 ```{r}
 # add max and min revenue value for each company
 fortune_joined_v3 <- fortune_joined_v3 %>%
@@ -580,7 +592,7 @@ fortune_joined_v3 <- fortune_joined_v3 %>%
 ```{r}
 # create unsuccessful company dataset (<.5 billion/year revenue growth, on average) + not currently on Fortune 500 + between 10 and 20 years on list
 unsuccessful_df <- fortune_joined_v3 %>% 
-  filter(current_fortune == "False") %>% # company must be on Fortune 500 in 2021
+  filter(current_fortune == "False") %>% # company must not be on Fortune 500 in 2021
   group_by(Company) %>%
   filter(years_on_fortune > 10 && years_on_fortune < 20) %>% # need at least 10 years of data for confidence, but less than 20 years, 
   filter(!Sector %in% c("Other", "NA")) %>%
@@ -949,13 +961,12 @@ fortune_joined_v3 %>%
 
 In this section, I will start by merging the datasets containing the following information into fortune_joined_v3:
 
-1.  Technology Adoption -\> technology_adoption_by_households_in_the_united_states
-2.  Supercomputer Power -\> supercomputer_power_flops
-3.  Computing Efficiency -\> computing_efficiency
-4.  Internet Usage -\> percent_using_internet
-5.  Phone Usage -\> landline_cellular_data
-6.  Moore's Law -\> moores_law
-7.  Computing Cost -\> computer_storage_cost
+1.  Supercomputer Power -\> supercomputer_power_flops
+2.  Computing Efficiency -\> computing_efficiency
+3.  Internet Usage -\> percent_using_internet
+4.  Phone Usage -\> landline_cellular_data
+5.  Moore's Law -\> moores_law
+6.  Computing Cost -\> computer_storage_cost
 
 +----------------------+---------------------------------------------------------------------------------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 | Dataset              | Source                                                                                      | Description                                                                                                                                                                              |

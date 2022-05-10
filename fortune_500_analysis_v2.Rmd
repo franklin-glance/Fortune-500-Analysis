@@ -10,7 +10,7 @@ knitr::opts_chunk$set(echo = TRUE,
                       warning = FALSE)
 ```
 
-# How did the rise in technology usage (social media, internet, etc..) affect historically successful businesses/industries?
+# How did the rise in technology usage affect historically successful businesses/industries?
 
 ```{r}
 library(tidyverse)
@@ -141,7 +141,7 @@ fortune_joined_v2 <- fortune_joined_v2 %>%
 
 ### Can rank and Revenue be used synonomously when talking about success?
 
-It appears that there is absolutely a correlation between rank and revenue, so we can use either rank or revenue to quantify success. This will be useful in the future as it is easier to bin a ranking range rather than having to make buckets for all revenues.
+It appears that there exists a strong correlation between rank and revenue, so we can use either rank or revenue to quantify success. This will be useful in the future as it is easier to bin a ranking range rather than having to make buckets for all revenues. The correlation is significantly stronger when fit with a log curve, which suggests that while revenue and rank are correlated, as rank gets lower, the growth of revenue becomes much faster (even exponential). This means that a high ranking company is likely exponentially more successful (in terms of revenue) than a lower ranking company on the fortune 500.
 
 ```{r}
 fortune_joined_v2 %>%
@@ -150,15 +150,13 @@ fortune_joined_v2 %>%
   summarise(mean_revenue_by_rank = mean(Revenue, na.rm = TRUE)) %>%
   ggplot(aes(Rank, mean_revenue_by_rank)) +
   geom_smooth() + 
+  stat_cor() +
   labs(title = "Mean Revenue by Rank, Fortune 500 from 1985 to 2021", 
        subtitle = "Displays correlation between rank and revenue") +
   ylab("Mean Revenue (in billions)") + 
   scale_x_continuous(trans = "reverse")
-```
 
-The logarithmic curve provides an even better picture of the relationship between rank and revenue.
-
-```{r}
+# with log curve
 fortune_joined_v2 %>%
   filter(Year > 1985) %>%
   group_by(Rank) %>%
@@ -243,7 +241,7 @@ output2 <- fortune_joined_v3 %>%  # hiding output for knit
   summarise(unique(Company))
 ```
 
-I will visualize the two different subsets of companies in the next section.
+I will continue with selecting subsets of the Fortune 500 in the next section.
 
 #### Boolean Select Columns
 
@@ -459,15 +457,15 @@ fortune_joined_v3 %>%
 
 Overarching Question: **How did the rise in technology usage (social media, internet, etc..) affect historically successful businesses/industries?**
 
-Parts 1 and 2 of this Analysis serve as the foundation of the predictive half. In the second half of this analysis, I hope to use the dataset I have built to answer the overarching question.
+Parts 1 and 2 of this Analysis serve as the foundation of the predictive half. In the second half of this analysis, I hope to use the dataset I have just built to answer the overarching question.
 
 The goal of this analysis is to determine the impact of technological advancements on "successful" businesses. Therefore, the second half of the analysis will cover the following steps:
 
 -   Part 4: Quantifying Success: *What subset of Fortune 500 companies are successful? unsuccessful?*
 
--   Part 5: Evaluating Success:
+-   Part 5: Technological Influences: *How has technology affected successful businesses? What does this mean for future investments?*
 
--   Part 6: Technological Influences: *How has technology affected successful businesses? What does this mean for future investments?*
+-   Part 6: Summary of Results
 
 ## Part 4: Quantifying Success
 
@@ -603,7 +601,11 @@ These companies are the most successful of the bunch. Because Hyper-Growth will 
 
 **Results:**
 
--   
+-   These companies exhibit extraordinary growth, and are very recognizable names.
+
+-   They fall into the Consumer Staples, Energy, Financials, Healthcare and Information Technology Sectors.
+
+-   Information Technology is the only sector to exhibit exponential growth. This suggests that Information Technology companies have the most potential for rapid expansion.
 
 ```{r}
 # plotting all names
@@ -611,50 +613,74 @@ fortune_joined_v3 %>%
   filter(hyper_growth == "True") %>%
   ggplot(aes(Year, Revenue)) +
   geom_col()+
-  facet_wrap(~ Name)
+  facet_wrap(~ Name) + 
+  labs(title = "Revenue for Hyper-Growth Companies from 1985 to 2021", 
+       subtitle = "Displays distribution of Revenue, by company") +
+  ylab("Revenue (in billions)")
 
 # plotting all names, by sector
 fortune_joined_v3 %>%
   filter(hyper_growth == "True") %>%
   ggplot(aes(Year, Revenue)) +
   geom_col()+
-  facet_wrap(~ Sector)
+  facet_wrap(~ Sector) + 
+  labs(title = "Revenue for Hyper-Growth Companies from 1985 to 2021", 
+       subtitle = "Displays distribution of Revenue, by Sector") +
+  ylab("Revenue (in billions)")
 
 # plotting IT companies
 fortune_joined_v3 %>%
   filter(hyper_growth == "True", Sector == "Information Technology") %>%
   ggplot(aes(Year, Revenue)) +
-  geom_col(aes(fill = Name))
+  geom_col(aes(fill = Name))+ 
+  labs(title = "Revenue for Hyper-Growth Companies from 1985 to 2021", 
+       subtitle = "Information Technology Companies") +
+  ylab("Revenue (in billions)")
 
 # plotting Consumer Staples companies
 fortune_joined_v3 %>%
   filter(hyper_growth == "True", Sector == "Consumer Staples") %>%
   ggplot(aes(Year, Revenue)) +
-  geom_col(aes(fill = Name))
+  geom_col(aes(fill = Name)) + 
+  labs(title = "Revenue for Hyper-Growth Companies from 1985 to 2021", 
+       subtitle = "Consumer Staples Companies") +
+  ylab("Revenue (in billions)")
 
 # plotting Healthcare companies
 fortune_joined_v3 %>%
   filter(hyper_growth == "True", Sector == "Healthcare") %>%
   ggplot(aes(Year, Revenue)) +
-  geom_col(aes(fill = Name))
+  geom_col(aes(fill = Name)) + 
+  labs(title = "Revenue for Hyper-Growth Companies from 1985 to 2021", 
+       subtitle = "Healthcare Companies") +
+  ylab("Revenue (in billions)")
 
 # plotting Financials Companies
 fortune_joined_v3 %>%
   filter(hyper_growth == "True", Sector == "Healthcare") %>%
   ggplot(aes(Year, Revenue)) +
-  geom_col(aes(fill = Name))
+  geom_col(aes(fill = Name))+ 
+  labs(title = "Revenue for Hyper-Growth Companies from 1985 to 2021", 
+       subtitle = "Financials Companies") +
+  ylab("Revenue (in billions)")
 
 # plotting Energy companies
 fortune_joined_v3 %>%
   filter(hyper_growth == "True", Sector == "Energy") %>%
   ggplot(aes(Year, Revenue)) +
-  geom_col(aes(fill = Name))
+  geom_col(aes(fill = Name))+ 
+  labs(title = "Revenue for Hyper-Growth Companies from 1985 to 2021", 
+       subtitle = "Energy Companies") +
+  ylab("Revenue (in billions)")
 
 # plotting Industrials companies
 fortune_joined_v3 %>%
   filter(hyper_growth == "True", Sector == "Industrials") %>%
   ggplot(aes(Year, Revenue)) +
-  geom_col(aes(fill = Name))
+  geom_col(aes(fill = Name)) + 
+  labs(title = "Revenue for Hyper-Growth Companies from 1985 to 2021", 
+       subtitle = "Industrials Companies") +
+  ylab("Revenue (in billions)")
 
 ```
 
@@ -667,11 +693,19 @@ As you can see, even at the moderate growth tier, it already becomes counterprod
 fortune_joined_v3 %>%
   filter(moderate_growth == "True") %>%
   ggplot(aes(Company, Revenue)) +
-  geom_col() + coord_flip()
+  geom_col() + coord_flip() + 
+  labs(title = "Revenue for Moderate-Growth Companies from 1985 to 2021", 
+       subtitle = "All Companies (understandably messy)") 
   
 ```
 
 It is more pragmatic to simply focus these companies on a sector-by-sector basis.
+
+**Observations:**
+
+-   The consumer staples is less of a powerhouse in this selection.
+
+-   Moderate growth companies are still household names, and are certainly extremely successful, but they have grown at a much slower rate than the hyper-successful companies.
 
 ```{r}
 # plotting all companies, by sector
@@ -679,54 +713,81 @@ fortune_joined_v3 %>%
   filter(moderate_growth == "True") %>%
   ggplot(aes(Year, Revenue)) +
   geom_col()+
-  facet_wrap(~ Sector)
+  facet_wrap(~ Sector) + 
+  labs(title = "Revenue for Moderate-Growth Companies from 1985 to 2021", 
+       subtitle = "By Sector") +
+  ylab("Revenue (in billions)")
 
 # plotting IT companies
 fortune_joined_v3 %>%
   filter(moderate_growth == "True", Sector == "Information Technology") %>%
   ggplot(aes(Year, Revenue)) +
   geom_col(aes()) +
-  facet_wrap(~ Name)
+  facet_wrap(~ Name) + 
+  labs(title = "Revenue for Moderate-Growth Companies from 1985 to 2021", 
+       subtitle = "Information Technology Companies") +
+  ylab("Revenue (in billions)")
 
 # plotting Consumer Staples companies
 fortune_joined_v3 %>%
   filter(moderate_growth == "True", Sector == "Consumer Staples") %>%
   ggplot(aes(Year, Revenue)) +
   geom_col(aes()) +
-  facet_wrap(~ Name)
+  facet_wrap(~ Name) + 
+  labs(title = "Revenue for Moderate-Growth Companies from 1985 to 2021", 
+       subtitle = "Consumer Staples Companies") +
+  ylab("Revenue (in billions)")
 
 # plotting Healthcare companies
 fortune_joined_v3 %>%
   filter(moderate_growth == "True", Sector == "Healthcare") %>%
   ggplot(aes(Year, Revenue)) +
   geom_col(aes()) +
-  facet_wrap(~ Name)
+  facet_wrap(~ Name)+ 
+  labs(title = "Revenue for Moderate-Growth Companies from 1985 to 2021", 
+       subtitle = "Healthcare Companies") +
+  ylab("Revenue (in billions)")
 
 # plotting Financials Companies
 fortune_joined_v3 %>%
   filter(moderate_growth == "True", Sector == "Healthcare") %>%
   ggplot(aes(Year, Revenue)) +
   geom_col(aes()) +
-  facet_wrap(~ Name)
+  facet_wrap(~ Name)+ 
+  labs(title = "Revenue for Moderate-Growth Companies from 1985 to 2021", 
+       subtitle = "Financials Companies") +
+  ylab("Revenue (in billions)")
 
 # plotting Energy companies
 fortune_joined_v3 %>%
   filter(moderate_growth == "True", Sector == "Energy") %>%
   ggplot(aes(Year, Revenue)) +
   geom_col(aes()) +
-  facet_wrap(~ Name)
+  facet_wrap(~ Name)+ 
+  labs(title = "Revenue for Moderate-Growth Companies from 1985 to 2021", 
+       subtitle = "Energy Companies") +
+  ylab("Revenue (in billions)")
 
 # plotting Industrials companies
 fortune_joined_v3 %>%
   filter(moderate_growth == "True", Sector == "Industrials") %>%
   ggplot(aes(Year, Revenue)) +
   geom_col(aes()) +
-  facet_wrap(~ Name)
+  facet_wrap(~ Name)+ 
+  labs(title = "Revenue for Moderate-Growth Companies from 1985 to 2021", 
+       subtitle = "Industrials Companies") +
+  ylab("Revenue (in billions)")
 ```
 
 #### Low Growth Companies
 
-It is more pragmatic to simply focus these companies on a sector-by-sector basis.
+It makes more sense to simply focus these companies on a sector-by-sector basis.
+
+**Observations:**
+
+-   Low growth exhibit continuous growth, but at a much lower rate than that of the hyper-successful companies.
+
+-   It starts to become pretty noticeable that these companies have not maintained standing on the Fortune 500 every year.
 
 ```{r}
 # plotting all companies, by sector
@@ -734,63 +795,83 @@ fortune_joined_v3 %>%
   filter(low_growth == "True") %>%
   ggplot(aes(Year, Revenue)) +
   geom_col()+
-  facet_wrap(~ Sector)
+  facet_wrap(~ Sector) + 
+  labs(title = "Revenue for Low-Growth Companies from 1985 to 2021", 
+       subtitle = "By Sector") +
+  ylab("Revenue (in billions)")
 
 # plotting IT companies
 fortune_joined_v3 %>%
   filter(low_growth == "True", Sector == "Information Technology") %>%
   ggplot(aes(Year, Revenue)) +
   geom_col(aes()) +
-  facet_wrap(~ Name)
+  facet_wrap(~ Name) + 
+  labs(title = "Revenue for Low-Growth Companies from 1985 to 2021", 
+       subtitle = "Information Technology Companies") +
+  ylab("Revenue (in billions)")
 
 # plotting Consumer Staples companies
 fortune_joined_v3 %>%
   filter(low_growth == "True", Sector == "Consumer Staples") %>%
   ggplot(aes(Year, Revenue)) +
   geom_col(aes()) +
-  facet_wrap(~ Name)
+  facet_wrap(~ Name) + 
+  labs(title = "Revenue for Low-Growth Companies from 1985 to 2021", 
+       subtitle = "Consumer Staples Companies") +
+  ylab("Revenue (in billions)")
 
 # plotting Healthcare companies
 fortune_joined_v3 %>%
   filter(low_growth == "True", Sector == "Healthcare") %>%
   ggplot(aes(Year, Revenue)) +
   geom_col(aes()) +
-  facet_wrap(~ Name)
+  facet_wrap(~ Name)  + 
+  labs(title = "Revenue for Low-Growth Companies from 1985 to 2021", 
+       subtitle = "Healthcare Companies") +
+  ylab("Revenue (in billions)")
 
 # plotting Financials Companies
 fortune_joined_v3 %>%
   filter(low_growth == "True", Sector == "Healthcare") %>%
   ggplot(aes(Year, Revenue)) +
   geom_col(aes()) +
-  facet_wrap(~ Name)
+  facet_wrap(~ Name) + 
+  labs(title = "Revenue for Low-Growth Companies from 1985 to 2021", 
+       subtitle = "Financials Companies") +
+  ylab("Revenue (in billions)")
 
 # plotting Energy companies
 fortune_joined_v3 %>%
   filter(low_growth == "True", Sector == "Energy") %>%
   ggplot(aes(Year, Revenue)) +
   geom_col(aes()) +
-  facet_wrap(~ Name)
+  facet_wrap(~ Name) + 
+  labs(title = "Revenue for Low-Growth Companies from 1985 to 2021", 
+       subtitle = "Energy Companies") +
+  ylab("Revenue (in billions)")
 
 # plotting Industrials companies
 fortune_joined_v3 %>%
   filter(low_growth == "True", Sector == "Industrials") %>%
   ggplot(aes(Year, Revenue)) +
   geom_col(aes()) +
-  facet_wrap(~ Name)
+  facet_wrap(~ Name) + 
+  labs(title = "Revenue for Low-Growth Companies from 1985 to 2021", 
+       subtitle = "Industrials Companies") +
+  ylab("Revenue (in billions)")
 ```
 
 #### Unsuccessful Companies
 
-```{r}
-# plotting all names
-fortune_joined_v3 %>%
-  filter(unsuccessful == "True") %>%
-  ggplot(aes(Company, Revenue)) +
-  geom_col() + coord_flip()
-  
-```
+Again, for these companies it makes much more sense to analyze them on a sector by sector basis.
 
-It is more pragmatic to simply focus these companies on a sector-by-sector basis.
+\*Keep in mind, these are still very successful companies, this is simply relative to the extremely successful ones.
+
+**Observations:**
+
+-   The plots for revenue for unsuccessful companies behave as expected, with little growth, and long term lack thereof.
+
+-   Unsurprisingly, the unsuccessful companies have much less commonly-heard names, which indicates that they may not be as good at using technological advances such as the internet for efficient distribution of their products.
 
 ```{r}
 # plotting all companies, by sector
@@ -798,49 +879,70 @@ fortune_joined_v3 %>%
   filter(unsuccessful == "True") %>%
   ggplot(aes(Year, Revenue)) +
   geom_col()+
-  facet_wrap(~ Sector)
+  facet_wrap(~ Sector) + 
+  labs(title = "Revenue for Unsuccessful* Companies from 1985 to 2021", 
+       subtitle = "By Sector") +
+  ylab("Revenue (in billions)")
 
 # plotting IT companies
 fortune_joined_v3 %>%
   filter(unsuccessful == "True", Sector == "Information Technology") %>%
   ggplot(aes(Year, Revenue)) +
   geom_col(aes()) +
-  facet_wrap(~ Name)
+  facet_wrap(~ Name)+ 
+  labs(title = "Revenue for Unsuccessful* Companies from 1985 to 2021", 
+       subtitle = "Information Technology Companies") +
+  ylab("Revenue (in billions)")
 
 # plotting Consumer Staples companies
 fortune_joined_v3 %>%
   filter(unsuccessful == "True", Sector == "Consumer Staples") %>%
   ggplot(aes(Year, Revenue)) +
   geom_col(aes()) +
-  facet_wrap(~ Name)
+  facet_wrap(~ Name)+ 
+  labs(title = "Revenue for Unsuccessful* Companies from 1985 to 2021", 
+       subtitle = "Consumer Staples Companies") +
+  ylab("Revenue (in billions)")
 
 # plotting Healthcare companies
 fortune_joined_v3 %>%
   filter(unsuccessful == "True", Sector == "Healthcare") %>%
   ggplot(aes(Year, Revenue)) +
   geom_col(aes()) +
-  facet_wrap(~ Name)
+  facet_wrap(~ Name)+ 
+  labs(title = "Revenue for Unsuccessful* Companies from 1985 to 2021", 
+       subtitle = "Healthcare Companies") +
+  ylab("Revenue (in billions)")
 
 # plotting Financials Companies
 fortune_joined_v3 %>%
   filter(unsuccessful == "True", Sector == "Healthcare") %>%
   ggplot(aes(Year, Revenue)) +
   geom_col(aes()) +
-  facet_wrap(~ Name)
+  facet_wrap(~ Name)+ 
+  labs(title = "Revenue for Unsuccessful* Companies from 1985 to 2021", 
+       subtitle = "Financials Companies") +
+  ylab("Revenue (in billions)")
 
 # plotting Energy companies
 fortune_joined_v3 %>%
   filter(unsuccessful == "True", Sector == "Energy") %>%
   ggplot(aes(Year, Revenue)) +
   geom_col(aes()) +
-  facet_wrap(~ Name)
+  facet_wrap(~ Name)+ 
+  labs(title = "Revenue for Unsuccessful* Companies from 1985 to 2021", 
+       subtitle = "Energy Companies") +
+  ylab("Revenue (in billions)")
 
 # plotting Industrials companies
 fortune_joined_v3 %>%
   filter(unsuccessful == "True", Sector == "Industrials") %>%
   ggplot(aes(Year, Revenue)) +
   geom_col(aes()) +
-  facet_wrap(~ Name)
+  facet_wrap(~ Name)+ 
+  labs(title = "Revenue for Unsuccessful* Companies from 1985 to 2021", 
+       subtitle = "Industrials Companies") +
+  ylab("Revenue (in billions)")
 ```
 
 ## Part 5: Technological Influences
@@ -888,21 +990,6 @@ fortune_joined_v4 <- fortune_joined_v3 %>%
 ```
 
 > We now have another data frame called fortune_joined_v4, which contains all of the external technological factor data. I will use this data to evaluate the effects of each on different sectors.
-
-I will now plot the technological factors to determine which ones will be most useful for the next part of the analysis.
-
-```{r}
-fortune_joined_v4 %>%
-  filter(hyper_growth == "True") %>%
-  group_by(Year) %>%
-  ggplot(aes(Revenue, -log10(`Computing efficiency`))) +
-  geom_smooth() +
-  stat_cor() +
-  labs(title = "Computing Efficiency", 
-       subtitle = "Computing Efficiency vs. Revenue from highly Successful Companies") +
-  ylab("Computing Efficiency")
-  
-```
 
 ### Analysis
 
@@ -1114,6 +1201,107 @@ fortune_joined_v4 %>%
   xlab("Revenue (in billions)")
 ```
 
+#### Low-Growth Companies vs. Technological Improvements
+
+```{r}
+# computing efficiency
+fortune_joined_v4 %>%
+  filter(low_growth == "True") %>%
+  group_by(Year) %>%
+  ggplot(aes(Revenue, -log10(`Computing efficiency`))) +
+  geom_smooth() +
+  stat_cor() +
+  labs(title = "Computing Efficiency Time Series", 
+       subtitle = "Computing Efficiency vs. Revenue from Low-Growth Companies") +
+  ylab("Computing Efficiency")
+
+# supercomputer power
+fortune_joined_v4 %>%
+  filter(low_growth == "True") %>%
+  group_by(Year) %>%
+  ggplot(aes(Revenue, log10(`Floating-Point Operations per Second`))) +
+  geom_smooth() +
+  stat_cor() +
+  labs(title = "Supercomputer Power Time Series", 
+       subtitle = "Floating-Point Operations/s vs. Revenue from Low-Growth Companies") +
+  ylab("Floating-Point Operations/s") +
+  xlab("Revenue (in bilions)")
+
+
+# computing efficiency
+fortune_joined_v4 %>%
+  filter(low_growth == "True") %>%
+  group_by(Year) %>%
+  ggplot(aes(log10(Revenue), -`Computing efficiency`)) +
+  geom_smooth() +
+  stat_cor() +
+  labs(title = "Computing Efficiency", 
+       subtitle = "Watts per MIPS vs. Revenue from Low-Growth Companies") +
+  ylab("Watts per MIPS") +
+  xlab("Revenue (in billions)")
+
+# percent of US using the internet
+fortune_joined_v4 %>%
+  filter(low_growth == "True") %>%
+  group_by(Year) %>%
+  ggplot(aes(log10(Revenue), `Individuals using the Internet (% of population)`)) +
+  geom_smooth() +
+  stat_cor() +
+  labs(title = "Internet Usage Time Series", 
+       subtitle = "Internet Usage vs. Revenue from Low-Growth Companies") +
+  ylab("Percentage of US Population Using Internet") +
+  xlab("Revenue (log scale)")
+
+# Cellular Subscriptions
+fortune_joined_v4 %>%
+  filter(low_growth == "True") %>%
+  group_by(Year) %>%
+  ggplot(aes(Revenue, `Cellular Subscriptions`)) +
+  geom_smooth() +
+  stat_cor() +
+  labs(title = "US Cellular Subscriptions Time Series", 
+       subtitle = "Number of Cellular Subscriptions vs. Revenue from Low-Growth Companies") +
+  ylab("Number of US Cellular Subscriptions") +
+  xlab("Revenue (in billions)")
+
+
+# landline subscriptions (per 100 people)
+fortune_joined_v4 %>%
+  filter(low_growth == "True") %>%
+  group_by(Year) %>%
+  ggplot(aes(Revenue, `Landline Subscriptions (per 100 people)`)) +
+  geom_smooth() +
+  stat_cor() +
+  labs(title = "US Landline Subscriptions Time Series", 
+       subtitle = "Percent of US using Landline vs. Revenue from Low-Growth Companies") +
+  ylab("Percent of Landline Subscriptions") +
+  xlab("Revenue (in billions)")
+
+# moores law
+fortune_joined_v4 %>%
+  filter(low_growth == "True") %>%
+  group_by(Year) %>%
+  ggplot(aes(Revenue, log10(`Transistors per microprocessor`))) +
+  geom_smooth() +
+  stat_cor() +
+  labs(title = "Mooore's Law Time Series", 
+       subtitle = "Transistors per Microprocessor vs. Revenue from Low-Growth Companies") +
+  ylab("Transistors per Microprocessor (log scale)") +
+  xlab("Revenue (in billions)")
+
+# computing cost (memory)
+fortune_joined_v4 %>%
+  filter(low_growth == "True") %>%
+  group_by(Year) %>%
+  ggplot(aes(Revenue, memory)) +
+  geom_smooth() +
+  stat_cor() +
+  labs(title = "Computing Cost Time Series", 
+       subtitle = "Memory Cost vs. Revenue from Low-Growth Companies") +
+  ylab("Dollars per Megabyte") +
+  xlab("Revenue (in billions)")
+```
+
 #### Unsuccessful Companies vs. Technological Improvements
 
 ```{r}
@@ -1224,6 +1412,8 @@ fortune_joined_v4 %>%
 +---------------------------------+----------------------+---------------------+----------------+-------------------+----------+----------+-------------+----------------+
 | Moderately Successful Companies | 0.14                 | 0.29                | 0.11           | 0.34              | 0.29     | -0.23    | 0.25        | -0.14          |
 +---------------------------------+----------------------+---------------------+----------------+-------------------+----------+----------+-------------+----------------+
+| Low Growth Companies            | 0.32                 | 0.37                | 0.26           | 0.47              | 0.41     | -0.3     | 0.36        | -0.25          |
++---------------------------------+----------------------+---------------------+----------------+-------------------+----------+----------+-------------+----------------+
 | Unsuccessful Companies          | 0.36                 | 0.31                | 0.28           | 0.49              | 0.4      | -0.016   | 0.35        | -0.33          |
 +---------------------------------+----------------------+---------------------+----------------+-------------------+----------+----------+-------------+----------------+
 
@@ -1237,12 +1427,109 @@ fortune_joined_v4 %>%
 
 -   Percent of US individuals Using the Internet also has much higher correlation to Hyper-Successful Companies.
 
--   Cellular has a strong positive correlation with Hyper-Successful companies relative to the otehr categories.
+-   Cellular has a strong positive correlation with Hyper-Successful companies relative to the other categories.
 
 -   Landline is extremely negatively correlated, so disproportionately so that it may be worthwhile investigating why this could be the case.
 
--   Moore's law shows promisng correlation with Hyper-Successful companies as well.
+-   Moore's law shows promising correlation with Hyper-Successful companies as well.
 
-## Part 6: Summary of Results
+-   Low-Growth companies do not exhibit remarkably different performance from unsuccessful companies, so, for the sake of brevity, this subset may be ignored.
 
-esquisse::esquisser(viewer = "browser")
+Correlation does not imply causation. However, the significance of these correlation values is inherent to the relative difference in correlation between hyper-successful companies and unsuccessful companies. There is certainly a trend in which correlated factors such as *Percent of US Population using Internet* display much stronger correlation to revenue of successful companies.
+
+At first, I thought that the higher correlation was due to hyper successful companies having a stronger growth rate overall, resulting in those companies having a stronger correlation with technologies that increased in usage over time. This is not the case. The correlation was typically (in indicative cases) strong among hyper-successful companies, and weak among both moderately successful and unsuccessful companies. Considering how these technologies do not experience directly increasing growth over the years, these correlation values suggest that hyper-successful companies take advantage of using new technologies (supercomputer power, percent using the internet, cellular, moores law).
+
+**In short:**
+
+-   Covariance analysis on the different company subsets suggests that new technology innovation and adaption impacts highly successful businesses more than other businesses.
+
+#### In-Depth analysis of Hyper-Successful Businesses
+
+The previous analysis suggest that technological advancements and adoption disproportionately affected hyper-successful companies relative to moderately successful companies. This is not unexpected, but it is interesting. Additionally, it also is interesting how the technologies related in improving hardware were much less correlated with success, but the technology advancements related to technology distribution (phone + internet usage) and physical implementation (supercomputer power) had a higher impact on successful companies.
+
+This suggests that these high-performance companies have a good sense of how consumer trends behave, and have taken the right moves to take advantage of different consumer trends, such as increasing online advertising during the period of rapid growth of the new internet.
+
+The final goal of this analysis is to determine what role sector plays within these highly successful businesses. We will be ignoring *Computing Cost, Watts Per MIBS, Computing Efficiency* as they did not display conclusive correlation one way or another among the greater population. Additionally, landline subscriptions does not show promising direction, so I will not plot that either (I also am trying to eliminate excess plots, as I already know this will be a pain to grade, and I'm sorry about that).
+
+```{r}
+
+# supercomputer power
+fortune_joined_v4 %>%
+  filter(hyper_growth == "True") %>%
+  group_by(Year) %>%
+  ggplot(aes(Revenue, log10(`Floating-Point Operations per Second`))) +
+  geom_smooth() +
+  stat_cor() +
+  facet_wrap(~ Sector) +
+  labs(title = "Supercomputer Power Time Series", 
+       subtitle = "Floating-Point Operations/s vs. Revenue from Hyper-Successful Companies") +
+  ylab("Floating-Point Operations/s") +
+  xlab("Revenue (in bilions)") 
+
+
+# percent of US using the internet
+fortune_joined_v4 %>%
+  filter(hyper_growth == "True") %>%
+  group_by(Year) %>%
+  ggplot(aes(log10(Revenue), `Individuals using the Internet (% of population)`)) +
+  geom_smooth() +
+  stat_cor() +
+  facet_wrap(~ Sector) +
+  labs(title = "Internet Usage Time Series", 
+       subtitle = "Internet Usage vs. Revenue from Hyper-Successful Companies") +
+  ylab("Percentage of US Population Using Internet") +
+  xlab("Revenue (log scale)")
+
+# Cellular Subscriptions
+fortune_joined_v4 %>%
+  filter(hyper_growth == "True") %>%
+  group_by(Year) %>%
+  ggplot(aes(Revenue, `Cellular Subscriptions`)) +
+  geom_smooth() +
+  stat_cor() +
+  facet_wrap(~ Sector) +
+  labs(title = "US Cellular Subscriptions Time Series", 
+       subtitle = "Number of Cellular Subscriptions vs. Revenue from Hyper-Successful Companies") +
+  ylab("Number of US Cellular Subscriptions") +
+  xlab("Revenue (in billions)")
+
+# moores law
+fortune_joined_v4 %>%
+  filter(hyper_growth == "True") %>%
+  group_by(Year) %>%
+  ggplot(aes(Revenue, log10(`Transistors per microprocessor`))) +
+  geom_smooth() +
+  stat_cor() +
+  facet_wrap(~ Sector) +
+  labs(title = "Mooore's Law Time Series", 
+       subtitle = "Transistors per Microprocessor vs. Revenue from Hyper-Successful Companies") +
+  ylab("Transistors per Microprocessor (log scale)") +
+  xlab("Revenue (in billions)")
+
+```
+
++------------------------+------------------+---------+------------+------------+-------------+------------------------+
+|                        | Consumer Staples | Energy  | Financials | Healthcare | Industrials | Information Technology |
++========================+==================+=========+============+============+=============+========================+
+| Supercomputer Power    | 0.54             | 0.74    | 0.78       | 0.82       | 0.81        | 0.77                   |
++------------------------+------------------+---------+------------+------------+-------------+------------------------+
+| Internet Usage         | 0.53             | 0.87    | 0.87       | 0.85       | 0.89        | 0.79                   |
++------------------------+------------------+---------+------------+------------+-------------+------------------------+
+| Cellular Subscriptions | 0.5              | 0.82    | 0.79       | 0.82       | 0.89        | 0.79                   |
++------------------------+------------------+---------+------------+------------+-------------+------------------------+
+| Moore's Law            | 0.48             | 0.84    | 0.76       | 0.82       | 0.87        | 0.75                   |
++------------------------+------------------+---------+------------+------------+-------------+------------------------+
+
+: Correlation for Successful Companies, by Sector
+
+Breaking down the analysis to the sector scale provides a better look into which sectors benefit more from various technological changes. It is relatively evident that there is a correlation between more high tech sectors (i.e, not Consumer Staples) and success due to technological advancements. This is an expected result since consumer staples companies rely much less heavily on innovation, relative to companies in other sectors.
+
+## Part 6: Summary & Results
+
+*How did the rise in technology usage affect historically successful businesses/industries?*
+
+This analysis has appropriately examined and evaluated how the rise in technology usage has impacted historically successful businesses & industries.
+
+The first task of preparing the Fortune 500 dataset was tedious, as it was difficult to find data to identify sectors of every company. Luckily, I managed to find a dataset holding 7 million company records. After wrangling that data together along with the other datasets, I was able to start the analysis. It quickly became evident that I needed to recode the dataset somehow to reduce the categories down to a tangible count.
+
+Luckily, I had already planned on using stock market sectors as a way of grouping companies. Sectors make sense for many reasons, one of the largest being that their stock prices often trade in similar direction, so numerical values for these companies should maintain a certain level of indifference from the confounding variable of market price. It is important to reduce this confounding aspect in order to be able to identify how technology factors effected different subsets of companies.

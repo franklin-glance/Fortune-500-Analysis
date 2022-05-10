@@ -4,7 +4,10 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, 
+                      error = FALSE,
+                      message = FALSE,
+                      warning = FALSE)
 ```
 
 # How did the rise in technology usage (social media, internet, etc..) affect historically successful businesses/industries?
@@ -111,16 +114,13 @@ company_infov2 <- company_infov2 %>%
 
 ```{r}
 # make names lowercase
-
 lowercase_companies_1955_2021 <- fortune1955_2021 %>%
     mutate(Company = tolower(Company))
-
 fortune_joined_v2 <- lowercase_companies_1955_2021 %>%
   left_join(company_infov2, by = "Company") 
-fortune_joined_v2
 # fixing data types
-fortune_joined_v2 <- fortune_joined_v2 %>%
-  mutate(Revenue = as.numeric(Revenue))
+#fortune_joined_v2 <- fortune_joined_v2 %>%
+ # mutate(Revenue = as.numeric(Revenue))
 ```
 
 ### Tidying Fortune Joined Dataset
@@ -133,8 +133,6 @@ fortune_joined_v2 <- fortune_joined_v2 %>%
   transform(Revenue = as.integer(Revenue)) %>%
   mutate(Revenue = Revenue/1000) %>%
   transform(Revenue = as.integer(Revenue))
-
-fortune_joined_v2
 ```
 
 ## Part 2: First Round Analysis on Fortune 500 Dataset
@@ -225,7 +223,7 @@ Results: 317 companies have been on the Fortune 500 for at least 20 years, since
 ```{r}
 head(fortune_joined_v3 %>% count(Company, sort=TRUE), n=20)
 # filtering by companies on the list for 20 years, since 1985
-fortune_joined_v3 %>% 
+output <- fortune_joined_v3 %>%  # hiding output for knit
   group_by(Company) %>%
   filter(Year > 1985) %>%
   filter(n() > 20) %>%
@@ -238,7 +236,7 @@ Now we will filter for companies who have been in the Fortune 500 the entire tim
 Results: 168 companies have been on the fortune 500 for the entire time (1985-2021). The 168 companies who have been on the Fortune 500 would typically be large corporations, who have been around for awhile. These companies are very successful, but may be less innovative due to their constant market presence, which requires that they please shareholders. This often results in companies sticking to their tried and true methods, rather than taking the innovative leaps required to create a unicorn startup.
 
 ```{r}
-fortune_joined_v3 %>% 
+output2 <- fortune_joined_v3 %>%  # hiding output for knit
   group_by(Company) %>%
   filter(Year > 1985) %>%
   filter(n() > 35) %>%

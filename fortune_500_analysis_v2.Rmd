@@ -906,9 +906,9 @@ fortune_joined_v4 %>%
 
 ### Analysis
 
-#### Successful Companies vs. Technological Improvements
+#### Hyper-Successful Companies vs. Technological Improvements
 
-The primary goal of this analysis was to determine what technology factors affect successful companies the most. Therefore, this section serves as a primary indicator. The following sections comparing lesser successful companies and unsuccessful companies is aimed at reducing negative effects from confounding variables.
+The primary goal of this analysis was to determine what technology factors affect successful companies. Therefore, the relationship between hyper-successful company revenue and technology factors is doubly necessary. The following sections comparing lesser successful companies and unsuccessful companies is aimed at reducing negative effects from confounding variables.
 
 *What is the relationship between hyper-successful companies and Technological Improvements?*
 
@@ -1012,6 +1012,236 @@ fortune_joined_v4 %>%
 
 
 ```
+
+#### Moderately-Successful Companies vs. Technological Improvements
+
+```{r}
+# computing efficiency
+fortune_joined_v4 %>%
+  filter(moderate_growth == "True") %>%
+  group_by(Year) %>%
+  ggplot(aes(Revenue, -log10(`Computing efficiency`))) +
+  geom_smooth() +
+  stat_cor() +
+  labs(title = "Computing Efficiency Time Series", 
+       subtitle = "Computing Efficiency vs. Revenue from Moderately-Successful Companies") +
+  ylab("Computing Efficiency")
+
+# supercomputer power
+fortune_joined_v4 %>%
+  filter(moderate_growth == "True") %>%
+  group_by(Year) %>%
+  ggplot(aes(Revenue, log10(`Floating-Point Operations per Second`))) +
+  geom_smooth() +
+  stat_cor() +
+  labs(title = "Supercomputer Power Time Series", 
+       subtitle = "Floating-Point Operations/s vs. Revenue from Moderately-Successful Companies") +
+  ylab("Floating-Point Operations/s") +
+  xlab("Revenue (in bilions)")
+
+
+# computing efficiency
+fortune_joined_v4 %>%
+  filter(moderate_growth == "True") %>%
+  group_by(Year) %>%
+  ggplot(aes(log10(Revenue), -`Computing efficiency`)) +
+  geom_smooth() +
+  stat_cor() +
+  labs(title = "Computing Efficiency", 
+       subtitle = "Watts per MIPS vs. Revenue from Moderately-Successful Companies") +
+  ylab("Watts per MIPS") +
+  xlab("Revenue (in billions)")
+
+# percent of US using the internet
+fortune_joined_v4 %>%
+  filter(moderate_growth == "True") %>%
+  group_by(Year) %>%
+  ggplot(aes(log10(Revenue), `Individuals using the Internet (% of population)`)) +
+  geom_smooth() +
+  stat_cor() +
+  labs(title = "Internet Usage Time Series", 
+       subtitle = "Internet Usage vs. Revenue from Moderately-Successful Companies") +
+  ylab("Percentage of US Population Using Internet") +
+  xlab("Revenue (log scale)")
+
+# Cellular Subscriptions
+fortune_joined_v4 %>%
+  filter(moderate_growth == "True") %>%
+  group_by(Year) %>%
+  ggplot(aes(Revenue, `Cellular Subscriptions`)) +
+  geom_smooth() +
+  stat_cor() +
+  labs(title = "US Cellular Subscriptions Time Series", 
+       subtitle = "Number of Cellular Subscriptions vs. Revenue from Moderately-Successful Companies") +
+  ylab("Number of US Cellular Subscriptions") +
+  xlab("Revenue (in billions)")
+
+
+# landline subscriptions (per 100 people)
+fortune_joined_v4 %>%
+  filter(moderate_growth == "True") %>%
+  group_by(Year) %>%
+  ggplot(aes(Revenue, `Landline Subscriptions (per 100 people)`)) +
+  geom_smooth() +
+  stat_cor() +
+  labs(title = "US Landline Subscriptions Time Series", 
+       subtitle = "Percent of US using Landline vs. Revenue from Moderately-Successful Companies") +
+  ylab("Percent of Landline Subscriptions") +
+  xlab("Revenue (in billions)")
+
+# moores law
+fortune_joined_v4 %>%
+  filter(moderate_growth == "True") %>%
+  group_by(Year) %>%
+  ggplot(aes(Revenue, log10(`Transistors per microprocessor`))) +
+  geom_smooth() +
+  stat_cor() +
+  labs(title = "Mooore's Law Time Series", 
+       subtitle = "Transistors per Microprocessor vs. Revenue from Moderately-Successful Companies") +
+  ylab("Transistors per Microprocessor (log scale)") +
+  xlab("Revenue (in billions)")
+
+# computing cost (memory)
+fortune_joined_v4 %>%
+  filter(moderate_growth == "True") %>%
+  group_by(Year) %>%
+  ggplot(aes(Revenue, memory)) +
+  geom_smooth() +
+  stat_cor() +
+  labs(title = "Computing Cost Time Series", 
+       subtitle = "Memory Cost vs. Revenue from Moderately-Successful Companies") +
+  ylab("Dollars per Megabyte") +
+  xlab("Revenue (in billions)")
+```
+
+#### Unsuccessful Companies vs. Technological Improvements
+
+```{r}
+# computing efficiency
+fortune_joined_v4 %>%
+  filter(unsuccessful == "True") %>%
+  group_by(Year) %>%
+  ggplot(aes(Revenue, -log10(`Computing efficiency`))) +
+  geom_smooth() +
+  stat_cor() +
+  labs(title = "Computing Efficiency Time Series", 
+       subtitle = "Computing Efficiency vs. Revenue from Less-Successful Companies") +
+  ylab("Computing Efficiency")
+
+# supercomputer power
+fortune_joined_v4 %>%
+  filter(unsuccessful == "True") %>%
+  group_by(Year) %>%
+  ggplot(aes(Revenue, log10(`Floating-Point Operations per Second`))) +
+  geom_smooth() +
+  stat_cor() +
+  labs(title = "Supercomputer Power Time Series", 
+       subtitle = "Floating-Point Operations/s vs. Revenue from Less-Successful Companies") +
+  ylab("Floating-Point Operations/s") +
+  xlab("Revenue (in bilions)")
+
+
+# computing efficiency
+fortune_joined_v4 %>%
+  filter(unsuccessful == "True") %>%
+  group_by(Year) %>%
+  ggplot(aes(log10(Revenue), -`Computing efficiency`)) +
+  geom_smooth() +
+  stat_cor() +
+  labs(title = "Computing Efficiency", 
+       subtitle = "Watts per MIPS vs. Revenue from Less-Successful Companies") +
+  ylab("Watts per MIPS") +
+  xlab("Revenue (in billions)")
+
+# percent of US using the internet
+fortune_joined_v4 %>%
+  filter(unsuccessful == "True") %>%
+  group_by(Year) %>%
+  ggplot(aes(log10(Revenue), `Individuals using the Internet (% of population)`)) +
+  geom_smooth() +
+  stat_cor() +
+  labs(title = "Internet Usage Time Series", 
+       subtitle = "Internet Usage vs. Revenue from Less-Successful Companies") +
+  ylab("Percentage of US Population Using Internet") +
+  xlab("Revenue (log scale)")
+
+# Cellular Subscriptions
+fortune_joined_v4 %>%
+  filter(unsuccessful == "True") %>%
+  group_by(Year) %>%
+  ggplot(aes(Revenue, `Cellular Subscriptions`)) +
+  geom_smooth() +
+  stat_cor() +
+  labs(title = "US Cellular Subscriptions Time Series", 
+       subtitle = "Number of Cellular Subscriptions vs. Revenue from Less-Successful Companies") +
+  ylab("Number of US Cellular Subscriptions") +
+  xlab("Revenue (in billions)")
+
+
+# landline subscriptions (per 100 people)
+fortune_joined_v4 %>%
+  filter(unsuccessful == "True") %>%
+  group_by(Year) %>%
+  ggplot(aes(Revenue, `Landline Subscriptions (per 100 people)`)) +
+  geom_smooth() +
+  stat_cor() +
+  labs(title = "US Landline Subscriptions Time Series", 
+       subtitle = "Percent of US using Landline vs. Revenue from Less-Successful Companies") +
+  ylab("Percent of Landline Subscriptions") +
+  xlab("Revenue (in billions)")
+
+# moores law
+fortune_joined_v4 %>%
+  filter(unsuccessful == "True") %>%
+  group_by(Year) %>%
+  ggplot(aes(Revenue, log10(`Transistors per microprocessor`))) +
+  geom_smooth() +
+  stat_cor() +
+  labs(title = "Mooore's Law Time Series", 
+       subtitle = "Transistors per Microprocessor vs. Revenue from Less-Successful Companies") +
+  ylab("Transistors per Microprocessor (log scale)") +
+  xlab("Revenue (in billions)")
+
+# computing cost (memory)
+fortune_joined_v4 %>%
+  filter(unsuccessful == "True") %>%
+  group_by(Year) %>%
+  ggplot(aes(Revenue, memory)) +
+  geom_smooth() +
+  stat_cor() +
+  labs(title = "Computing Cost Time Series", 
+       subtitle = "Memory Cost vs. Revenue from Less-Successful Companies") +
+  ylab("Dollars per Megabyte") +
+  xlab("Revenue (in billions)")
+```
+
+#### Correlation Results
+
++---------------------------------+----------------------+---------------------+----------------+-------------------+----------+----------+-------------+----------------+
+|                                 | Computing Efficiency | Supercomputer Power | Watts per MIBS | \% Using Internet | Cellular | Landline | Moore's Law | Computing Cost |
++=================================+======================+=====================+================+===================+==========+==========+=============+================+
+| Hyper-Successful Companies      | 0.36                 | 0.59                | 0.32           | 0.72              | 0.58     | -0.53    | 0.53        | -0.18          |
++---------------------------------+----------------------+---------------------+----------------+-------------------+----------+----------+-------------+----------------+
+| Moderately Successful Companies | 0.14                 | 0.29                | 0.11           | 0.34              | 0.29     | -0.23    | 0.25        | -0.14          |
++---------------------------------+----------------------+---------------------+----------------+-------------------+----------+----------+-------------+----------------+
+| Unsuccessful Companies          | 0.36                 | 0.31                | 0.28           | 0.49              | 0.4      | -0.016   | 0.35        | -0.33          |
++---------------------------------+----------------------+---------------------+----------------+-------------------+----------+----------+-------------+----------------+
+
+: Correlation Values
+
+**Interpretation:**
+
+-   We can eliminate the following categories due to low overall correlation: *Computing Cost, Watts Per MIBS, Computing Efficiency*
+
+-   Supercomputer power shows significantly higher correlation to hyper-successful company growth compared to growth of even moderately successful companies. This suggest that Supercomputer power could be a technological advancement that highly successful companies have taken advantage of properly.
+
+-   Percent of US individuals Using the Internet also has much higher correlation to Hyper-Successful Companies.
+
+-   Cellular has a strong positive correlation with Hyper-Successful companies relative to the otehr categories.
+
+-   Landline is extremely negatively correlated, so disproportionately so that it may be worthwhile investigating why this could be the case.
+
+-   Moore's law shows promisng correlation with Hyper-Successful companies as well.
 
 ## Part 6: Summary of Results
 

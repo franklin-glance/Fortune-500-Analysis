@@ -1,4 +1,4 @@
-[embed]https://github.com/franklin-glance/Fortune-500-Analysis/blob/main/Analysis%20-%20Franklin%20Glance.pdf[/embed
+[embed]https://github.com/franklin-glance/Fortune-500-Analysis/blob/main/Analysis%20-%20Franklin%20Glance.pdf[/embed]
 
 
 # Fortune_500_Analysis

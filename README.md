@@ -1,40 +1,7 @@
 # Fortune_500_Analysis
 *How did the rise in technology usage (social media, internet, etc..) aid or hurt historically successful businesses/industries?*
 
----
-title: "Analysis - Franklin Glance"
-output: html_document
----
-
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, 
-                      error = FALSE,
-                      message = FALSE,
-                      warning = FALSE)
-```
-
 # How did the rise in technology usage affect historically successful businesses/industries?
-
-```{r}
-library(tidyverse)
-library(dplyr)
-library(ggplot2)
-library(forcats)
-library(lubridate)
-library(sparklyr)
-library(ggthemes)
-library(gridExtra)
-library(readxl)
-library(stringr)
-library(corrr)
-library(here)
-library(corrgram)
-library(readr)
-library(ggpubr)
-library(data.table)
-library(modelr)
-setwd("/Users/franklinglance/Library/CloudStorage/OneDrive-UniversityofVirginia/UVA/Spring 2022/SYS 2202/Final Project/Fortune_500_Analysis")
-```
 
 ## Importing Data
 
@@ -68,10 +35,6 @@ moores_law <- read_csv("data/transistors-per-microprocessor.csv")
 computer_storage_cost <- read_csv("data/historical-cost-of-computer-memory-and-storage.csv")
 
 ```
-
-
-: Dataset Information
-
 ### Analysis Overview
 
 1.  Prepare Dataset Representing Fortune 500 Companies
